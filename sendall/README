@@ -1,0 +1,3 @@
+SendAll
+
+Requires the Send plugin for Ashita.  Queues commands to send to other clients as well as self.
