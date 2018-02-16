@@ -1,0 +1,52 @@
+{
+    "allies": {
+        "abilitys": 0,
+        "effect_wear": 0,
+        "finish_spell": 0,
+        "melee": 0,
+        "ranged": 0,
+        "readies": 0,
+        "start_spell": 0,
+        "ws": 0
+    },
+    "foe": {
+        "abilitys": 0,
+        "effect_wear": 0,
+        "finish_spell": 0,
+        "melee": 0,
+        "ranged": 0,
+        "readies": 0,
+        "start_spell": 0,
+        "ws": 0
+    },
+    "other": {
+        "abilitys": 0,
+        "effect_wear": 0,
+        "finish_spell": 0,
+        "melee": 0,
+        "ranged": 0,
+        "readies": 0,
+        "start_spell": 0,
+        "ws": 0
+    },
+    "party": {
+        "abilitys": 0,
+        "effect_wear": 0,
+        "finish_spell": 0,
+        "melee": 0,
+        "ranged": 0,
+        "readies": 0,
+        "start_spell": 0,
+        "ws": 0
+    },
+    "self": {
+        "abilitys": 0,
+        "effect_wear": 0,
+        "finish_spell": 0,
+        "melee": 0,
+        "ranged": 0,
+        "readies": 0,
+        "start_spell": 0,
+        "ws": 0
+    }
+}
