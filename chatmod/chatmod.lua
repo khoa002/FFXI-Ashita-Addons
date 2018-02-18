@@ -7,7 +7,7 @@ require 'common'
 require 'imguidef'
 require 'helpers.buffs'
 require 'helpers.methods'
-require 'mabil'
+require 'abilities'
 require 'helpers.packethelp'
 
 filter_melee = { ["spikes"] = true, ["addeffect"] = true, ["condense"] = true }
@@ -20,24 +20,93 @@ pcolors = {["self"] = 256,["p1"] = 200,["p2"]  =127,["p3"]  = 141,["p4"]  = 325,
 filter = {100,31,4}
 ignore = {94,202,310,38,53,170,171,172,173,174,175,176,177,178,565,582}
 
-chatfiltervars = {    ["self"]   = {["start_spell"] = 0,["finish_spell"]= 0,["melee"] = 0,["ws"]= 0,["ranged"]= 0,["abilitys"]= 0,["readies"]= 0,["effect_wear"]= 0},
-                       ["party"]  = {["start_spell"] = 0,["finish_spell"]= 0,["melee"] = 0,["ws"]= 0,["ranged"]= 0,["abilitys"]= 0,["readies"]= 0,["effect_wear"]= 0},
-                       ["allies"] = {["start_spell"] = 0,["finish_spell"]= 0,["melee"] = 0,["ws"]= 0,["ranged"]= 0,["abilitys"]= 0,["readies"]= 0,["effect_wear"]= 0},
-                       ["foe"] = {["start_spell"] = 0,["finish_spell"]= 0,["melee"] = 0,["ws"]= 0,["ranged"]= 0,["abilitys"]= 0,["readies"]= 0,["effect_wear"]= 0},
-                       ["other"]  = {["start_spell"] = 0,["finish_spell"]= 0,["melee"] = 0,["ws"]= 0,["ranged"]= 0,["abilitys"]= 0,["readies"]= 0,["effect_wear"]= 0}}
+chatfiltervars = {    ["self"]   = {["start_spell"] = false,["finish_spell"]= false,["melee"] = false,["ws"]= false,["ranged"]= false,["abilitys"]= false,["readies"]= false,["effect_wear"]= false},
+                       ["party"]  = {["start_spell"] = false,["finish_spell"]= false,["melee"] = false,["ws"]= false,["ranged"]= false,["abilitys"]= false,["readies"]= false,["effect_wear"]= false},
+                       ["allies"] = {["start_spell"] = false,["finish_spell"]= false,["melee"] = false,["ws"]= false,["ranged"]= false,["abilitys"]= false,["readies"]= false,["effect_wear"]= false},
+                       ["foe"] = {["start_spell"] = false,["finish_spell"]= false,["melee"] = false,["ws"]= false,["ranged"]= false,["abilitys"]= false,["readies"]= false,["effect_wear"]= false},
+                       ["other"]  = {["start_spell"] = false,["finish_spell"]= false,["melee"] = false,["ws"]= false,["ranged"]= false,["abilitys"]= false,["readies"]= false,["effect_wear"]= false}}
+
+chatfiltervarsGui = {
+	-- Editor vars
+	["var_ShowEditorWindow"] = {nil, ImGuiVar_BOOLCPP, false},
+
+	-- Filter vars
+	["self"] = {
+		["start_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["finish_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["melee"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ws"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ranged"] = {nil, ImGuiVar_BOOLCPP, false},
+		["abilities"] = {nil, ImGuiVar_BOOLCPP, false},
+		["readies"] = {nil, ImGuiVar_BOOLCPP, false},
+		["effect_wear"] = {nil, ImGuiVar_BOOLCPP, false}
+	},
+	["party"] = {
+		["start_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["finish_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["melee"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ws"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ranged"] = {nil, ImGuiVar_BOOLCPP, false},
+		["abilities"] = {nil, ImGuiVar_BOOLCPP, false},
+		["readies"] = {nil, ImGuiVar_BOOLCPP, false},
+		["effect_wear"] = {nil, ImGuiVar_BOOLCPP, false}
+	},
+	["allies"] = {
+		["start_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["finish_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["melee"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ws"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ranged"] = {nil, ImGuiVar_BOOLCPP, false},
+		["abilities"] = {nil, ImGuiVar_BOOLCPP, false},
+		["readies"] = {nil, ImGuiVar_BOOLCPP, false},
+		["effect_wear"] = {nil, ImGuiVar_BOOLCPP, false}
+	},
+	["foe"] = {
+		["start_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["finish_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["melee"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ws"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ranged"] = {nil, ImGuiVar_BOOLCPP, false},
+		["abilities"] = {nil, ImGuiVar_BOOLCPP, false},
+		["readies"] = {nil, ImGuiVar_BOOLCPP, false},
+		["effect_wear"] = {nil, ImGuiVar_BOOLCPP, false}
+	},
+	["other"] = {
+		["start_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["finish_spell"] = {nil, ImGuiVar_BOOLCPP, false},
+		["melee"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ws"] = {nil, ImGuiVar_BOOLCPP, false},
+		["ranged"] = {nil, ImGuiVar_BOOLCPP, false},
+		["abilities"] = {nil, ImGuiVar_BOOLCPP, false},
+		["readies"] = {nil, ImGuiVar_BOOLCPP, false},
+		["effect_wear"] = {nil, ImGuiVar_BOOLCPP, false}
+	}
+}
+
+----------------------------------------------------------------------------------------------------
+-- func: load_settings
+-- desc: Loads the Chatmod settings file.
+----------------------------------------------------------------------------------------------------
+local function load_settings()
+    -- TBD
+end
 
 ---------------------------------------------------------------------------------------------------
 -- func: load
 -- desc: First called when our addon is loaded.
 ---------------------------------------------------------------------------------------------------
 ashita.register_event('load', function()
-    
-    local test = 'hello world!';
-	--dboxpacket = {0xB6,0x80,0xC6,0x0C,0x00,   0x42, 0x72, 0x6F, 0x77, 0x6E, 0x69, 0x65,0x73, 0x00, 0xEE, 0xC3, 0x65, 0x72, 0x02, 0x00, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62,0x65, 0x72, 0x02, 0x00, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62, 0x61, 0x62}
-    --AddOutgoingPacket(dboxpacket, 0xB6, 1)
-    --dboxpacket = { 0xE0, 0x04,0xAD,0x00,0x01,0x12,0x00,0x00}   
-    --AddIncomingPacket(dboxpacket, 0xE0, 8)
-    --print(string.char(0x81, 0xED))  
+    -- Init chatfiltervarsGui
+	-- for k, v in pairs(chatfiltervarsGui) do
+        -- if (v[2] >= ImGuiVar_CDSTRING) then 
+            -- chatfiltervarsGui[k][1] = imgui.CreateVar(chatfiltervarsGui[k][2], chatfiltervarsGui[k][3]);
+        -- else
+            -- chatfiltervarsGui[k][1] = imgui.CreateVar(chatfiltervarsGui[k][2]);
+        -- end
+        -- if (#v > 2 and v[2] < ImGuiVar_CDSTRING) then
+            -- imgui.SetVarValue(chatfiltervarsGui[k][1], chatfiltervarsGui[k][3]);
+        -- end        
+    -- end
 	
     --Gui_CreateBar("Chat Mod Settings", 100, 100, 225, 350)
     --Gui_Define(" 'Chat Mod Settings' valueswidth=fit color='0 0 153' iconified=true")
@@ -108,56 +177,60 @@ end );
 ashita.register_event('incoming_packet', function(id, size, packet, packet_modified, blocked)
     local offset;
     if id == 0x029 then --Action Message
-        -- local am = {}
-        -- _ , am.actor_id = pack.unpack(packet,"I",0x05)
-        -- _ , am.target_id = pack.unpack(packet,"I",0x09)
-        -- _ , am.param_1 = pack.unpack(packet,"I",0x0D)
-        -- -- _ , am.param_2 = pack.unpack(packet,"H",0x11)%2^9 -- First 7 bits
-        -- -- _ , am.param_3 = math.floor(pack.unpack(packet,"I",0x11)/2^5) -- Rest
-        -- _ , am.param_2 = pack.unpack(packet,"I",0x011)
-        -- _ , am.actor_index = pack.unpack(packet,"H",0x15)
-        -- _ , am.target_index = pack.unpack(packet,"H",0x17)
-        -- _ , am.message_id = pack.unpack(packet,"I",0x19)
-        -- if(table.hasvalue(filter,am.message_id))then
-            -- return true
-        -- end
-        -- if(table.hasvalue(ignore,am.message_id))then
-            -- return false
-        -- end
-        -- local buff = buffIDtoName(am.param_1)
-        -- if(buff == nil)then
-            -- buf = "???"
-        -- end
-        -- --local messages = {[206] = get_name(am.actor_id) .. "'s " .. color(buff,207) .. " wore off",[6] = get_name(am.actor_id) .. " defeats " .. get_name(am.target_id) , [523] = "You already have " .. AshitaCore:GetResourceManager():GetAbilityByID(am.param_1 + 512).Name[2] .. " active"}
-        -- local text = "0x29 "
-        -- text = text .. am.message_id .. " " .. am.param_1 .. " " --.. --am.param_2 .. " " --.. am.param_3
-        -- --text = text .. get_name(am.actor_id)
-        -- if(am.message_id == 206 and chatfiltervars[getrelations(am.actor_id)]["effect_wear"])then
-            -- return true
-        -- end
-        -- if(table.haskey(messages,am.message_id))then
-            -- text = messages[am.message_id].en
-            -- if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(am.actor_id) ) end
-            -- if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  get_name(am.target_id) ) end
-            -- if(string.find(text,'$number')    ~= nil)then text =string.gsub(text,'$number',  am.param_1 ) end
-            -- if(string.find(text,'$numbe2')    ~= nil)then text =string.gsub(text,'$numbe2',  am.param_2 ) end
-            -- if(string.find(text,'$status')    ~= nil)then text =string.gsub(text,'$status',  buff ) end    
-            -- if(string.find(text,'$spell')    ~= nil)then text =string.gsub(text,'$spell',    AshitaCore:GetResourceManager():GetSpellById(am.param_1).Name[2]) end            
-            -- if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  getaname(am.actor_id ,am.param_1) ) end
-            -- if(string.find(text,'$item2')    ~= nil)then text =string.gsub(text,'$item2',    AshitaCore:GetResourceManager():GetItemById(am.param_2).Name) end            
-            -- if(string.find(text,'$item')    ~= nil)then text =string.gsub(text,'$item',   AshitaCore:GetResourceManager():GetItemById(am.param_1).Name) end            
-            -- showmessage(121,am.actor_id,am.target_id,text)
-            -- return true
-        -- end
-        -- print(text)        
+        local am = {}
+        _ , am.actor_id = pack.unpack(packet,"I",0x05)
+        _ , am.target_id = pack.unpack(packet,"I",0x09)
+        _ , am.param_1 = pack.unpack(packet,"I",0x0D)
+        -- _ , am.param_2 = pack.unpack(packet,"H",0x11)%2^9 -- First 7 bits
+        -- _ , am.param_3 = math.floor(pack.unpack(packet,"I",0x11)/2^5) -- Rest
+        _ , am.param_2 = pack.unpack(packet,"I",0x011)
+        _ , am.actor_index = pack.unpack(packet,"H",0x15)
+        _ , am.target_index = pack.unpack(packet,"H",0x17)
+        _ , am.message_id = pack.unpack(packet,"I",0x19)
+        if(table.hasvalue(filter,am.message_id))then
+            return true
+        end
+        if(table.hasvalue(ignore,am.message_id))then
+            return false
+        end
+        local buff = buffIDtoName(am.param_1)
+        if(buff == nil)then
+            buf = "???"
+        end
+        --local messages = {[206] = get_name(am.actor_id) .. "'s " .. color(buff,207) .. " wore off",[6] = get_name(am.actor_id) .. " defeats " .. get_name(am.target_id) , [523] = "You already have " .. AshitaCore:GetResourceManager():GetAbilityById(am.param_1 + 512).Name[2] .. " active"}
+        local text = "0x29 "
+        text = text .. am.message_id .. " " .. am.param_1 .. " " --.. --am.param_2 .. " " --.. am.param_3
+        --text = text .. get_name(am.actor_id)
+        if(am.message_id == 206 and chatfiltervars[getrelations(am.actor_id)]["effect_wear"])then
+            return true
+        end
+        if(table.haskey(messages,am.message_id))then
+            text = messages[am.message_id].en
+            if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(am.actor_id) ) end
+            if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  get_name(am.target_id) ) end
+            if(string.find(text,'$number')    ~= nil)then text =string.gsub(text,'$number',  am.param_1 ) end
+            if(string.find(text,'$numbe2')    ~= nil)then text =string.gsub(text,'$numbe2',  am.param_2 ) end
+            if(string.find(text,'$status')    ~= nil)then text =string.gsub(text,'$status',  buff ) end    
+            if(string.find(text,'$spell')    ~= nil)then text =string.gsub(text,'$spell',    AshitaCore:GetResourceManager():GetSpellById(am.param_1).Name[2]) end            
+            if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  getmaname(am.actor_id ,am.param_1) ) end
+            if(string.find(text,'$item2')    ~= nil)then text =string.gsub(text,'$item2',    AshitaCore:GetResourceManager():GetItemById(am.param_2).Name) end            
+            if(string.find(text,'$item')    ~= nil)then text =string.gsub(text,'$item',   AshitaCore:GetResourceManager():GetItemById(am.param_1).Name) end            
+            showmessage(121,am.actor_id,am.target_id,text)
+            return true
+        end
+		
+		-- Uncaptured message ID; Won't override with anything
+        --print("Unknown message: " .. text);
+		return false;
     elseif id  == 0x028 then	
         act =  unpackaction(packet)
         if(table.hasvalue(ignore,act.targets[1].actions[1].message))then
             return false
         end
         if(table.hasvalue(filter,act.targets[1].actions[1].message))then
-            act.targets[1].actions[1].message = 0
+            act.targets[1].actions[1].message = 0;
         else
+			--print("Cat: " .. act.category .. "; From: " .. get_name(act.actor_id) .. " - " .. act.actor_id);
 			if(act.category == 1) then     --Melee
 				act = melee(act)
 				elseif(act.category == 2)then --Finish Ranged
@@ -167,31 +240,32 @@ ashita.register_event('incoming_packet', function(id, size, packet, packet_modif
 				elseif(act.category == 4)then --Finish Spell Casting
 				act = fspell(act)
 				elseif(act.category == 5)then --Finish Item use
-				elseif(act.category == 9)then --Start Item use /Inter
-				if(act.targets[1].actions[1].param ~= 0)then
-					local text = "[" .. get_name(act.actor_id) .. "] uses a " .. color(AshitaCore:GetResourceManager():GetItemById(act.targets[1].actions[1].param).Name,204)
-					showmessage(act.targets[1].actions[1].message,act.actor_id,act.targets[1].id,text)
-					act.targets[1].actions[1].message = 0
-				end
 				elseif(act.category == 6)then --Ja use
 					act = ja(act)
 				elseif(act.category == 7)then --Start Weaponskill / tpmove
 					act = swstp(act)
 				elseif(act.category == 8)then --Start Spell
-					local spell = AshitaCore:GetResourceManager():GetSpellById(act.targets[1].actions[1].param)
+					local spell = AshitaCore:GetResourceManager():GetSpellById(act.targets[1].actions[1].param);
 					if(spell ~= nil)then
 						if(chatfiltervars[getrelations(act.actor_id)]["start_spell"])then
 							act.targets[1].actions[1].message = 0
 						else
+						
 						local text = "[" .. get_name(act.actor_id) .. "] " .. spell.Name[2] .. " --> " .. get_name(act.targets[1].id)
 						showmessage(act.targets[1].actions[1].message,act.actor_id,act.targets[1].id,text)
-						act.targets[1].actions[1].message = 0 
+						act.targets[1].actions[1].message = 0;
 						end
 					else
 						if(act.targets[1].actions[1].message ~= 0)then
 							print("Sspell: " .. get_name(act.actor_id) .. " " .. act.targets[1].actions[1].param)
 						end
-					end    
+					end  
+				elseif(act.category == 9)then --Start Item use /Inter
+				if(act.targets[1].actions[1].param ~= 0)then
+					local text = "[" .. get_name(act.actor_id) .. "] uses a " .. color(AshitaCore:GetResourceManager():GetItemById(act.targets[1].actions[1].param).Name[2],204)
+					showmessage(act.targets[1].actions[1].message,act.actor_id,act.targets[1].id,text)
+					act.targets[1].actions[1].message = 0
+				end  
 				elseif(act.category == 10)then --???
 					print("Cat 10:" ..get_name(act.actor_id))
 				elseif(act.category == 11)then --Finish Tp Move
@@ -204,23 +278,22 @@ ashita.register_event('incoming_packet', function(id, size, packet, packet_modif
 				elseif(act.category == 15)then --Some RUN job abilities
 			end
         end
-        local react = packaction(act)
-        
-        return false, string.totable(packet:sub(1,4) .. react)
+        local react = packaction(act);
+        return false, string.totable(packet:sub(1,4) .. react);
 	else
 		return false;
     end;
 end);
   
 function get_name(id)
-    if(id <= 30000)then
-        local name = GetIndexById(id).Name
+    if(id >= 0)then
+        local name = GetIndexById(id).Name;
         if (name == nil)then
             name = "Out Of Range"
         end
         local index = "others"
         for i=0 ,AshitaCore:GetDataManager():GetParty():GetAllianceParty0MemberCount()-1,1 do
-            if(AshitaCore:GetDataManager():GetParty():GetPartyMemberName(i) == name)then
+            if(AshitaCore:GetDataManager():GetParty():GetMemberName(i) == name)then
                 if(i == 0)then
                     index = "self"
                 else
@@ -229,12 +302,12 @@ function get_name(id)
             end
         end
         for i=0 ,AshitaCore:GetDataManager():GetParty():GetAllianceParty1MemberCount()-1,1 do
-            if(AshitaCore:GetDataManager():GetParty():GetPartyMemberName(i+6) == name)then
+            if(AshitaCore:GetDataManager():GetParty():GetMemberName(i+6) == name)then
                 index  = "a1" .. (i)
             end
         end
         for i=0 ,AshitaCore:GetDataManager():GetParty():GetAllianceParty2MemberCount()-1,1 do
-            if(AshitaCore:GetDataManager():GetParty():GetPartyMemberName(i+12) == name)then
+            if(AshitaCore:GetDataManager():GetParty():GetMemberName(i+12) == name)then
                 index  = "a2" .. (i)
             end
         end
@@ -245,7 +318,7 @@ function get_name(id)
             name = "Out Of Range"
         end
         local index = "ppet" -- opet
-        local peto = AshitaCore:GetDataManager():GetEntity():GetPetOwnerID(bit.band(id,0x0FFF))
+        local peto = AshitaCore:GetDataManager():GetEntity():GetPetOwnerId(bit.band(id,0x0FFF))
         if(peto == AshitaCore:GetDataManager():GetParty():GetMemberServerId(0))then
             index = "ppet"
         end
@@ -321,7 +394,7 @@ end );
 -- desc: Called when our addon receives a command.
 ---------------------------------------------------------------------------------------------------
 ashita.register_event('command', function(cmd, nType)
-    if(cmd == "/color test")then
+    if(cmd == "/cmod color test")then
         local counter = 0
         local line = ''
         for n = 1, 500 do
@@ -335,7 +408,7 @@ ashita.register_event('command', function(cmd, nType)
         end
         print(line)
     end
-    if(cmd == "/cm save")then
+    if(cmd == "/cmod save")then
         local tempvar = {["self"]   = {["start_spell"] = false,["finish_spell"]=false,["melee"] = false,["ws"]=false,["ranged"]=false,["abilitys"]=false,["readies"]=false,["effect_wear"]=false},
                          ["party"]  = {["start_spell"] = false,["finish_spell"]=false,["melee"] = false,["ws"]=false,["ranged"]=false,["abilitys"]=false,["readies"]=false,["effect_wear"]=false},
                          ["allies"] = {["start_spell"] = false,["finish_spell"]=false,["melee"] = false,["ws"]=false,["ranged"]=false,["abilitys"]=false,["readies"]=false,["effect_wear"]=false},
@@ -350,10 +423,10 @@ ashita.register_event('command', function(cmd, nType)
         end
         ashita.settings.save(_addon.path .. 'settings/chatfilters.json', tempvar)
     end
-    if(cmd == "/cm settings")then
+    if(cmd == "/cmod settings")then
         --Gui_Define(" 'Chat Mod Settings' iconified=false")
     end
-    if(cmd == "/t1")then
+    if(cmd == "/cmod t1")then
         for i =0, 256 do
             local text = ""..i
             AshitaCore:GetChatManager():AddChatMessage(i,text)
@@ -406,7 +479,7 @@ function melee(act)
                         end
                         if(string.find(text,'$number')    ~= nil)then text =string.gsub(text,'$number',  taken ) end
                     end
-                    if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(act.actor_id) ) end
+                    if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
                     if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  get_name(act.targets[i].id) ) end
                     if(string.find(text,'$damage')    ~= nil)then text =string.gsub(text,'$damage',  damage ) end
                     if(string.find(text,'$status')    ~= nil)then text =string.gsub(text,'$status',  buffIDtoName(act.targets[1].actions[1].add_effect_param) ) end
@@ -421,12 +494,12 @@ function melee(act)
                 if(mid ~= 0)then
                     text = message[mid]
                     if(act.targets[i].actions[n].has_add_effect and filter_melee["addeffect"])then
-                        text = text .. "\n[$actor] Add effect " .. act.targets[i].actions[n].add_effect_param .. "-->$target"
+                        text = text .. "\n$actor Add effect " .. act.targets[i].actions[n].add_effect_param .. "-->$target"
                     end
                     if(act.targets[i].actions[n].has_spike_effect and filter_melee["spikes"]) then
                         text = text .. "\n[$target] Spikes " .. act.targets[i].actions[n].spike_effect_param .. "-->$actor"
                     end
-                    if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(act.actor_id) ) end
+                    if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
                     if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  get_name(act.targets[i].id) ) end
                     if(string.find(text,'$damage')    ~= nil)then text =string.gsub(text,'$damage',  act.targets[i].actions[n].param ) end
                 end
@@ -468,7 +541,7 @@ function ranged(act)
                         text = text .. "\nAdd Effect Mid:"..act.targets[i].actions[n].add_effect_message
                     end
                 end
-                if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(act.actor_id) ) end
+                if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
                 if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  get_name(act.targets[i].id) ) end
                 if(string.find(text,'$damage')    ~= nil)then text =string.gsub(text,'$damage',  act.targets[i].actions[n].param ) end
                 if(string.find(text,'$number')    ~= nil)then text =string.gsub(text,'$number',  act.targets[1].actions[1].add_effect_param ) end
@@ -483,7 +556,7 @@ function ranged(act)
     return act
 end
 function ws(act)
-    local text = "[$actor] $damage $action --> $target"
+    local text = "$actor $damage $action --> $target"
     local mid = act.targets[1].actions[1].message 
     if(chatfiltervars[getrelations(act.actor_id)]["ws"])then
         for i = 1,act.target_count do
@@ -502,13 +575,13 @@ function ws(act)
             if(act.targets[i].actions[n].message == 110)then
                 num = num + 512
             end
-            local ability = AshitaCore:GetResourceManager():GetAbilityByID(num)
+            local ability = AshitaCore:GetResourceManager():GetAbilityById(num)
             if(ability == nil)then
                 return act
             else
                 if(string.find(text,'$action')    ~= nil)then text =string.gsub(text,'$action',    ability.Name[2] ) end
             end
-            if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(act.actor_id) ) end
+            if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
             if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  get_name(act.targets[i].id) ) end
             if(string.find(text,'$damage')    ~= nil)then text =string.gsub(text,'$damage',  act.targets[i].actions[n].param ) end
             if(act.targets[i].actions[n].has_add_effect)then
@@ -557,16 +630,16 @@ function fspell(act)
     end
     for i = 2,#targets do
         if(mid == 367)then
-            names = names .. "," .. targets[i][1] .. "(" .. targets[i][2] .. "HP)"
+            names = names .. ", " .. targets[i][1] .. "(" .. targets[i][2] .. "HP)"
             else
-            names = names .. "," .. targets[i][1]
+            names = names .. ", " .. targets[i][1]
         end
     end
     if(string.find(text,'$status')    ~= nil)then text =string.gsub(text,'$status',   buffIDtoName(act.targets[1].actions[1].param) ) end
     if(string.find(text,'$ename')    ~= nil)then text =string.gsub(text,'$ename',   buffIDtoName(act.targets[1].actions[1].param) ) end
     if(string.find(text,'$number')   ~= nil)then text =string.gsub(text,'$number',   act.targets[1].actions[1].param ) end
     if(string.find(text,'$effect')   ~= nil)then text =string.gsub(text,'$effect',   act.targets[1].actions[1].param ) end
-    if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(act.actor_id) ) end
+    if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
     if(string.find(text,'$spell')    ~= nil)then text =string.gsub(text,'$spell',    AshitaCore:GetResourceManager():GetSpellById(act.param).Name[2]) end
     if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  names)  end
        
@@ -586,21 +659,21 @@ function ja(act)
     if(table.haskey(messages,mid) or mid == 0)then
         local targets = get_name(act.targets[1].id)
         local num = act.param
-        local ability = AshitaCore:GetResourceManager():GetAbilityByID(num + 512)  
+        local ability = AshitaCore:GetResourceManager():GetAbilityById(num + 512)  
         local text = ""
         if(mid == 0)then
-            text = "[$actor] $action --> $target"
+            text = "$actor $action --> $target"
         else
             text = messages[mid].en
         end
         local targetz = {}
         act,targetz = gettargets(act)
         for i = 2,#targetz do
-            targets = targets .. "," .. targetz[i][1]
+            targets = targets .. ", " .. targetz[i][1]
         end
         if(string.find(text,'$ability')    ~= nil)then text =string.gsub(text,'$ability',    ability.Name[2] ) end
         if(string.find(text,'$action')    ~= nil)then text =string.gsub(text,'$action',    ability.Name[2] ) end
-        if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(act.actor_id) ) end
+        if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
         if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target', targets  ) end 
         if(string.find(text,'$number')   ~= nil)then text =string.gsub(text,'$number', act.targets[1].actions[1].param  ) end
         if(string.find(text,'$rolleffect')~= nil)then text =string.gsub(text,'$rolleffect', (roll_buff[num + 512][act.targets[1].actions[1].param] .. roll_buff[num + 512][13]):color(13)  ) end
@@ -620,17 +693,17 @@ function swstp(act)
         return act
     end
     if(act.param == 24931)then
-        if(act.actor_id <= 30000)then
+        if(act.actor_id <= 1000000)then
             text = "[" .. get_name(act.actor_id) .. "] readies " .. act.targets[1].actions[1].param  .. " --> " ..  get_name(act.targets[1].id)
         else  --  ..
-            text ="[" .. get_name(act.actor_id) .. "] readies " .. getaname(act.actor_id,act.targets[1].actions[1].param) ..  " --> " ..  get_name(act.targets[1].id)
+            text ="[" .. get_name(act.actor_id) .. "] readies " .. getmaname(act.actor_id,act.targets[1].actions[1].param) ..  " --> " ..  get_name(act.targets[1].id)
             act.targets[1].actions[1].message = 0
         end
     else
-        if(act.actor_id <= 30000)then
+        if(act.actor_id <= 1000000)then
             text = "[" .. get_name(act.actor_id) .. "] " .. act.targets[1].actions[1].param  .. " Failed"
         else
-            text = "[" .. get_name(act.actor_id) .. "] " .. getaname(act.actor_id,act.targets[1].actions[1].param) ..  " Failed"
+            text = "[" .. get_name(act.actor_id) .. "] " .. getmaname(act.actor_id,act.targets[1].actions[1].param) ..  " Failed"
             act.targets[1].actions[1].message = 0
         end
     end
@@ -655,9 +728,9 @@ function ftp(act)
         act,targets = gettargets(act)
         local names = targets[1][1]
         for i = 2,#targets do
-            names = names .. "," .. targets[i][1]
+            names = names .. ", " .. targets[i][1]
         end
-        local skillname = getaname(act.actor_id,act.param)
+        local skillname = getmaname(act.actor_id,act.param)
         if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',   get_name(act.actor_id) ) end
         if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  names ) end
         if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  skillname ) end
@@ -679,14 +752,15 @@ function pet(act)
     act,targets = gettargets(act)
     names = targets[1][1]
     for i = 2,#targets do
-        names = names .. "," .. targets[i][1]
+        names = names .. ", " .. targets[i][1]
     end
+	if (string.find(text, '$ability') ~= nil) then text = string.gsub(text, '$ability', getjaname(act.actor_id, act.param)) end;
     if(string.find(text,'$status')    ~= nil)then text =string.gsub(text,'$status',   buffIDtoName(act.targets[1].actions[1].param) ) end
     if(string.find(text,'$number')   ~= nil)then text =string.gsub(text,'$number',   act.targets[1].actions[1].param ) end
-    if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    get_name(act.actor_id) ) end
+    if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
     if(string.find(text,'$spell')    ~= nil)then text =string.gsub(text,'$spell',    AshitaCore:GetResourceManager():GetSpellById(act.param).Name[2]) end
     if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  names)  end
-    if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  getaname(act.actor_id,act.param))  end
+    if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  getmaname(act.actor_id,act.param))  end
     showmessage(50,act.actor_id,act.targets[1].id,text)
     return act
 end    

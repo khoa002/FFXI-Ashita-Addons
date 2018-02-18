@@ -1,52 +1,52 @@
 {
     "allies": {
-        "abilitys": 0,
-        "effect_wear": 0,
-        "finish_spell": 0,
-        "melee": 0,
-        "ranged": 0,
-        "readies": 0,
-        "start_spell": 0,
-        "ws": 0
+        "abilitys": false,
+        "effect_wear": false,
+        "finish_spell": false,
+        "melee": false,
+        "ranged": false,
+        "readies": false,
+        "start_spell": false,
+        "ws": false
     },
     "foe": {
-        "abilitys": 0,
-        "effect_wear": 0,
-        "finish_spell": 0,
-        "melee": 0,
-        "ranged": 0,
-        "readies": 0,
-        "start_spell": 0,
-        "ws": 0
+        "abilitys": false,
+        "effect_wear": false,
+        "finish_spell": false,
+        "melee": false,
+        "ranged": false,
+        "readies": false,
+        "start_spell": false,
+        "ws": false
     },
     "other": {
-        "abilitys": 0,
-        "effect_wear": 0,
-        "finish_spell": 0,
-        "melee": 0,
-        "ranged": 0,
-        "readies": 0,
-        "start_spell": 0,
-        "ws": 0
+        "abilitys": false,
+        "effect_wear": false,
+        "finish_spell": false,
+        "melee": false,
+        "ranged": false,
+        "readies": false,
+        "start_spell": false,
+        "ws": false
     },
     "party": {
-        "abilitys": 0,
-        "effect_wear": 0,
-        "finish_spell": 0,
-        "melee": 0,
-        "ranged": 0,
-        "readies": 0,
-        "start_spell": 0,
-        "ws": 0
+        "abilitys": false,
+        "effect_wear": false,
+        "finish_spell": false,
+        "melee": false,
+        "ranged": false,
+        "readies": false,
+        "start_spell": false,
+        "ws": false
     },
     "self": {
-        "abilitys": 0,
-        "effect_wear": 0,
-        "finish_spell": 0,
-        "melee": 0,
-        "ranged": 0,
-        "readies": 0,
-        "start_spell": 0,
-        "ws": 0
+        "abilitys": false,
+        "effect_wear": false,
+        "finish_spell": false,
+        "melee": false,
+        "ranged": false,
+        "readies": false,
+        "start_spell": false,
+        "ws": false
     }
 }

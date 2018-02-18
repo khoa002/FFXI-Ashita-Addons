@@ -9,7 +9,7 @@ function showmessage(mid,actor,target,text)
 end
 
 function getrelations(id)
-if(id <= 30000)then
+	if(id >= 0)then
         local index = "other"
         for i=0 ,AshitaCore:GetDataManager():GetParty():GetAllianceParty0MemberCount()-1,1 do
             if(AshitaCore:GetDataManager():GetParty():GetMemberServerId(i) == id)then
@@ -73,14 +73,26 @@ function gettargets(act)
     return act,targets
 end
 
-function getaname(id,action)
-        return mabil[action].en
+function getmaname(id,action)
+	if (table.haskey(mabil, action)) then
+		return mabil[action].en;
+	else
+		return "(Unknown mabil)";
+	end;
 end 
 
+function getjaname(id, action)
+	if (table.haskey(jabil, action)) then
+		return jabil[action].en;
+	else
+		return "(Unknown jabil)";
+	end;
+end;
+
 function GetIndexById(id)
-    for x = 1023, 2048 do
+    for x = 0, 2303 do
         local ent = GetEntity(x);
-        if (ent ~= nil and ent.ServerID == id) then
+        if (ent ~= nil and ent.ServerId == id) then
             return ent;
         end
     end    
