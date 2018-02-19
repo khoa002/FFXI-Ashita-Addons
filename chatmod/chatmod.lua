@@ -212,7 +212,7 @@ ashita.register_event('incoming_packet', function(id, size, packet, packet_modif
             if(string.find(text,'$numbe2')    ~= nil)then text =string.gsub(text,'$numbe2',  am.param_2 ) end
             if(string.find(text,'$status')    ~= nil)then text =string.gsub(text,'$status',  buff ) end    
             if(string.find(text,'$spell')    ~= nil)then text =string.gsub(text,'$spell',    AshitaCore:GetResourceManager():GetSpellById(am.param_1).Name[2]) end            
-            if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  getmaname(am.actor_id ,am.param_1) ) end
+            if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  getaname(am.actor_id ,am.param_1) ) end
             if(string.find(text,'$item2')    ~= nil)then text =string.gsub(text,'$item2',    AshitaCore:GetResourceManager():GetItemById(am.param_2).Name) end            
             if(string.find(text,'$item')    ~= nil)then text =string.gsub(text,'$item',   AshitaCore:GetResourceManager():GetItemById(am.param_1).Name) end            
             showmessage(121,am.actor_id,am.target_id,text)
@@ -676,7 +676,7 @@ function ja(act)
         if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
         if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target', targets  ) end 
         if(string.find(text,'$number')   ~= nil)then text =string.gsub(text,'$number', act.targets[1].actions[1].param  ) end
-        if(string.find(text,'$rolleffect')~= nil)then text =string.gsub(text,'$rolleffect', (roll_buff[num + 512][act.targets[1].actions[1].param] .. roll_buff[num + 512][13]):color(13)  ) end
+        if(string.find(text,'$rolleffect')~= nil)then text =string.gsub(text,'$rolleffect', (roll_buff[num + 512][act.targets[1].actions[1].param] .. color(roll_buff[num + 512][13], 13))) end
         if(string.find(text,'$rollchance')   ~= nil)then text =string.gsub(text,'$rollchance', bust_rate(act.targets[1].actions[1].param)  ) end
         if(string.find(text,'$lucky')   ~= nil)then text =string.gsub(text,'$lucky', lucky( num +512,act.targets[1].actions[1].param)  ) end
         showmessage(50,act.actor_id,act.targets[1].id,text)     
@@ -686,24 +686,26 @@ function ja(act)
     return act
 end
 function swstp(act)
-    local mid = act.targets[1].actions[1].message
-    local text = ""
+    local mid = act.targets[1].actions[1].message;
+    local text = "";
     if(chatfiltervars[getrelations(act.actor_id)]["readies"])then
         act.targets[1].actions[1].message = 0
         return act
     end
     if(act.param == 24931)then
         if(act.actor_id <= 1000000)then
-            text = "[" .. get_name(act.actor_id) .. "] readies " .. act.targets[1].actions[1].param  .. " --> " ..  get_name(act.targets[1].id)
+			local abil = AshitaCore:GetResourceManager():GetAbilityById(act.targets[1].actions[1].param).Name[2];	
+            text = "[" .. get_name(act.actor_id) .. "] readies " .. abil .. " --> " ..  get_name(act.targets[1].id)
         else  --  ..
-            text ="[" .. get_name(act.actor_id) .. "] readies " .. getmaname(act.actor_id,act.targets[1].actions[1].param) ..  " --> " ..  get_name(act.targets[1].id)
+            text ="[" .. get_name(act.actor_id) .. "] readies " .. getaname(act.actor_id,act.targets[1].actions[1].param) ..  " --> " ..  get_name(act.targets[1].id)
             act.targets[1].actions[1].message = 0
         end
     else
-        if(act.actor_id <= 1000000)then
-            text = "[" .. get_name(act.actor_id) .. "] " .. act.targets[1].actions[1].param  .. " Failed"
+        if(act.actor_id <= 1000000)then			
+			local abil = AshitaCore:GetResourceManager():GetAbilityById(act.targets[1].actions[1].param).Name[2];
+            text = "[" .. get_name(act.actor_id) .. "] " .. abil  .. " Failed"
         else
-            text = "[" .. get_name(act.actor_id) .. "] " .. getmaname(act.actor_id,act.targets[1].actions[1].param) ..  " Failed"
+            text = "[" .. get_name(act.actor_id) .. "] " .. getaname(act.actor_id,act.targets[1].actions[1].param) ..  " Failed"
             act.targets[1].actions[1].message = 0
         end
     end
@@ -730,7 +732,7 @@ function ftp(act)
         for i = 2,#targets do
             names = names .. ", " .. targets[i][1]
         end
-        local skillname = getmaname(act.actor_id,act.param)
+        local skillname = getaname(act.actor_id,act.param)
         if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',   get_name(act.actor_id) ) end
         if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  names ) end
         if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  skillname ) end
@@ -754,13 +756,13 @@ function pet(act)
     for i = 2,#targets do
         names = names .. ", " .. targets[i][1]
     end
-	if (string.find(text, '$ability') ~= nil) then text = string.gsub(text, '$ability', getjaname(act.actor_id, act.param)) end;
+	if (string.find(text, '$ability') ~= nil) then text = string.gsub(text, '$ability', getaname(act.actor_id, act.param)) end;
     if(string.find(text,'$status')    ~= nil)then text =string.gsub(text,'$status',   buffIDtoName(act.targets[1].actions[1].param) ) end
     if(string.find(text,'$number')   ~= nil)then text =string.gsub(text,'$number',   act.targets[1].actions[1].param ) end
     if(string.find(text,'$actor')    ~= nil)then text =string.gsub(text,'$actor',    "["..get_name(act.actor_id).."]") end
     if(string.find(text,'$spell')    ~= nil)then text =string.gsub(text,'$spell',    AshitaCore:GetResourceManager():GetSpellById(act.param).Name[2]) end
     if(string.find(text,'$target')   ~= nil)then text =string.gsub(text,'$target',  names)  end
-    if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  getmaname(act.actor_id,act.param))  end
+    if(string.find(text,'$weapon_skill')   ~= nil)then text =string.gsub(text,'$weapon_skill',  getaname(act.actor_id,act.param))  end
     showmessage(50,act.actor_id,act.targets[1].id,text)
     return act
 end    
