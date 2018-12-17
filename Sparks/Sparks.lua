@@ -42,25 +42,42 @@ receivedItem = true;
 currentSparks = 0;
 
 local buyQueue = {};
+local packetQueue = {};
 local totalBuy = 0;
 local __lclock, __sendclock = 0,0;
-local __cycle = 1;
+local __cycle = .25;
+insideMenu = false;
 
-function purchase_item(item)
-	print("\30\110[Sparks]Buying item: " .. item .. " #" .. totalBuy);
-	if not busy then
-		pkt = validate(item);
-		if pkt then
-			busy = true;
-			poke_npc(pkt['Target'], pkt['Target Index']);
-			totalBuy = totalBuy - 1;
-		else
-			print("\30\68[Sparks]Can't find item in menu");
-		end;
+ashita.register_event('render', function()
+	-- Create a timer and attempt to use a key on a chest
+	if (buyQueue and table.getn(buyQueue) > 0 and busy and pkt and insideMenu) then
+		__sendclock = os.clock() - __lclock;
+		if(__sendclock >= __cycle) then
+			if (table.getn(buyQueue) > 1) then
+				AddOutgoingPacket(0x05B, packetQueue[1]);
+			else
+				AddOutgoingPacket(0x05B, packetQueue[1]);
+				-- Finished buying - cleanup	
+				local packet = struct.pack('bbbbihhhbbhh', 0x05B, 0x05, 0x00, 0x00, pkt['Target'], 0, 16384, pkt['Target Index'], 0, 0, pkt['Zone'], pkt['Menu ID']):totable();
+				AddOutgoingPacket(0x05B, packet);
+				packet = struct.pack('bbbbhh', 0x016, 0x02, 0x00, 0x00, GetPlayerEntity().TargetIndex, 0):totable();
+				AddOutgoingPacket(0x016, packet);
+				busy = false;
+				lastpkt = pkt;
+				pkt = {};
+				insideMenu = false;
+				
+				print("\30\110[Sparks] Buying last item and closing out.");
+			end;
+			table.remove(buyQueue, 1);
+			table.remove(packetQueue, 1);
+			
+			__lclock = os.clock();
+        end
 	else
-		print("\30\68[Sparks]Still buying last item");
+		__lclock = os.clock();
 	end;
-end;
+end);
 
 ashita.register_event('command', function(cmd, nType)
 	-- Get the command arguments..
@@ -90,12 +107,30 @@ ashita.register_event('command', function(cmd, nType)
 			else
 				print("\30\68[Sparks]Still buying last item");
 			end;
+		elseif cmd:find('buyamt') then
+			if not busy then
+				pkt = validate(item);
+				if pkt then
+					totalBuy = tonumber(string.sub(cmd, 7));
+					for i=1, totalBuy do
+						table.insert(buyQueue, item);
+					end;
+				
+					busy = true;
+					poke_npc(pkt['Target'], pkt['Target Index']);
+				else
+					print("\30\68[Sparks]Can't find item in menu");
+				end;
+			else
+				print("\30\68[Sparks]Still buying last item");
+			end;			
 		elseif cmd == 'buyall' then
 			local currentzone = AshitaCore:GetDataManager():GetParty():GetMemberZone(0);
 			
 			if currentzone == 241 or currentzone == 230 or currentzone == 235 or currentzone == 256 then
 				count_inv();
-				local sparksAddy = ashita.memory.find('FFXiMain.dll', 0, '', 0x46CAD8, 0);
+				local sparksPtr = ashita.memory.findpattern('FFXiMain.dll',  0,  '8B4C240C8B4104??????????33C0',  0,  0);
+				local sparksAddy = ashita.memory.read_uint32(sparksPtr + 8);
 				local currSparks = ashita.memory.read_uint32(sparksAddy);
 				
 				-- Change freeslots to match the number based on sparks possible to purchase
@@ -106,19 +141,40 @@ ashita.register_event('command', function(cmd, nType)
 					freeslots = totalPurchase;
 				end;
 				
-				totalBuy = freeslots;
-				
 				print("\30\110[Sparks]You can purchase " .. freeslots .. " total items, buying " .. item .. " until full");
-				
-				local currentloop = 0;
-				while currentloop < freeslots do
-					currentloop = currentloop + 1;
-					-- Add to queue
-					table.insert(buyQueue, item);
+					
+				if not busy then
+					pkt = validate(item);
+					if pkt then						
+						totalBuy = freeslots;
+						local currentloop = 0;
+						while currentloop < freeslots do
+							currentloop = currentloop + 1;
+							-- Add to queue
+							table.insert(buyQueue, item);
+						end;
+					
+						busy = true;
+						poke_npc(pkt['Target'], pkt['Target Index']);
+					else
+						print("\30\68[Sparks]Can't find item in menu");
+					end;
+				else
+					print("\30\68[Sparks]Still buying last item");
 				end;
 			else
 				print("\30\68[Sparks]You are not currently in a zone with a sparks NPC");
-			end;			
+			end;	
+		elseif cmd == 'cancel' then
+			-- Finished buying - cleanup	
+			local packet = struct.pack('bbbbihhhbbhh', 0x05B, 0x05, 0x00, 0x00, pkt['Target'], 0, 16384, pkt['Target Index'], 0, 0, pkt['Zone'], pkt['Menu ID']):totable();
+			AddOutgoingPacket(0x05B, packet);
+			packet = struct.pack('bbbbhh', 0x016, 0x02, 0x00, 0x00, GetPlayerEntity().TargetIndex, 0):totable();
+			AddOutgoingPacket(0x016, packet);
+			busy = false;
+			lastpkt = pkt;
+			pkt = {};
+			insideMenu = false;
 		elseif cmd == 'buyki' then
 			if not busy then
 				ki = 1;
@@ -289,7 +345,7 @@ function validate(item)
 			end
 		end
 	
-		if math.sqrt(distance) < 6 then
+		if math.sqrt(distance) < 15 then
             local ite = fetch_db(item);
 			if ite then
 				result['Target'] = target_id;
@@ -406,14 +462,24 @@ ashita.register_event('incoming_packet', function(id, size, packet, packet_modif
 
 	if id == 0x032 or id == 0x034 then
 	 if busy == true and pkt then
+		insideMenu = true;
 		if npc_name ~= 'Dremi' and npc_name ~= 'Affi' and npc_name ~= 'Shiftrix' then
 			-- build packet
 			local packet = struct.pack('bbbbihhhbbhh', 0x05B, 0x05, 0x00, 0x00, pkt['Target'], pkt['Option Index'], pkt['_unknown1'], pkt['Target Index'], 1, 0, pkt['Zone'], pkt['Menu ID']):totable();
-			AddOutgoingPacket(0x05B, packet);
 
-			packet = struct.pack('bbbbihhhbbhh', 0x05B, 0x05, 0x00, 0x00, pkt['Target'], 0, 16384, pkt['Target Index'], 0, 0, pkt['Zone'], pkt['Menu ID']):totable();
-			AddOutgoingPacket(0x05B, packet);
+			if totalBuy > 0 then			
+				for i = 1, totalBuy do
+					table.insert(packetQueue, packet);
+					totalBuy = totalBuy - 1;
+				end;				
+			else
+				-- Buying?
+				AddOutgoingPacket(0x05B, packet);
 			
+				packet = struct.pack('bbbbihhhbbhh', 0x05B, 0x05, 0x00, 0x00, pkt['Target'], 0, 16384, pkt['Target Index'], 0, 0, pkt['Zone'], pkt['Menu ID']):totable();
+				AddOutgoingPacket(0x05B, packet);
+			end;
+		
 		else  -- reisinjima does it different....
 			-- build packet
 			local packet = struct.pack('bbbbihhhbbhh', 0x05B, 0x05, 0x00, 0x00, pkt['Target'], pkt['Option Index'], pkt['_unknown1'], pkt['Target Index'], 1, 0, pkt['Zone'], pkt['Menu ID']):totable();
@@ -432,11 +498,14 @@ ashita.register_event('incoming_packet', function(id, size, packet, packet_modif
 			AddOutgoingPacket(0x05B, packet);
 		end;
 
-		local packet = struct.pack('bbbbhh', 0x016, 0x02, 0x00, 0x00, GetPlayerEntity().TargetIndex, 0):totable();
-		AddOutgoingPacket(0x016, packet);
-		busy = false;
-		lastpkt = pkt;
-		pkt = {};
+		if (buyQueue and table.getn(buyQueue) <= 0) then
+			local packet = struct.pack('bbbbhh', 0x016, 0x02, 0x00, 0x00, GetPlayerEntity().TargetIndex, 0):totable();
+			AddOutgoingPacket(0x016, packet);
+			busy = false;
+			lastpkt = pkt;
+			pkt = {};
+			insideMenu = false;
+		end;
 		return true;
 	 end;
 	end;
@@ -477,20 +546,3 @@ end
 ashita.register_event('load', function()
 	find_all_tempitems()
 end)
-
-ashita.register_event('render', function()
-    if(#buyQueue > 0) then
-		__sendclock = os.clock() - __lclock;
-		if(__cycle == 1 and __sendclock >= 1.0) then
-			if receivedItem then
-				receivedItem = false;
-				purchase_item(buyQueue[1]);
-				table.remove(buyQueue, 1);
-			end;
-			
-			__lclock = os.clock();
-		end
-	else
-		__lclock = os.clock();
-    end
-end );
