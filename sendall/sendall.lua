@@ -90,7 +90,7 @@ ashita.register_event('command', function(command, nType)
 			currCmd = table.concat(args," ");
 			__cycle = 1;
 
-			for i = 1, 4 do
+			for i = 1, #partyList do
 				addToQueue(partyList[i]);
 			end;
 			
