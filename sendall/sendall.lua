@@ -92,14 +92,6 @@ ashita.register_event('command', function(command, nType)
 
 			for i = 1, 4 do
 				addToQueue(partyList[i]);
-			end;
-		elseif (args[1] == "/sendallq") then		
-			table.remove(args, 1);
-			currCmd = table.concat(args," ");
-			__cycle = 0;
-
-			for i = 1, 4 do
-				addToQueue(partyList[i]);
 			end;	
 		end;
 	end;
