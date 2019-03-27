@@ -72,7 +72,7 @@ end;
 
 function sendCmd(name)		
 	if (name ~= currPlayer) then
-		AshitaCore:GetChatManager():QueueCommand("/servo sendto " .. name .. " " .. currCmd, 1);	
+		AshitaCore:GetChatManager():QueueCommand("/ms sendto " .. name .. " " .. currCmd, 1);	
 	else
 		AshitaCore:GetChatManager():QueueCommand(currCmd, 1);	
 	end;
