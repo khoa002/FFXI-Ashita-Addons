@@ -92,7 +92,9 @@ ashita.register_event('command', function(command, nType)
 
 			for i = 1, 4 do
 				addToQueue(partyList[i]);
-			end;	
+			end;
+			
+			return true;
 		end;
 	end;
     return false;
