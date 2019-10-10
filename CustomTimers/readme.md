@@ -1,5 +1,4 @@
 CustomTimers for Ashita
-v1.0
 
 Commands:
 * /ctimers add NAME H M S
