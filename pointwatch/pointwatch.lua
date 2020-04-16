@@ -358,6 +358,19 @@ ashita.register_event('command', function(command, nType)
 					f:GetBackground():SetColor(RGBAtoHex(settings.text_box_settings.bg.red, settings.text_box_settings.bg.green, settings.text_box_settings.bg.blue, tab[1]));
 					settings.text_box_settings.bg.alpha = tab[1];
 				end;
+			elseif (first_cmd == 'anchor') then
+				if table.hasvalue({'top', 'bottom', 'left', 'right'}, tab[1]) then
+					if tab[1] == 'top' then
+						settings.text_box_settings.flags.bottom = false
+					elseif tab[1] == 'bottom' then
+						settings.text_box_settings.flags.bottom = true
+					elseif tab[1] == 'left' then
+						settings.text_box_settings.flags.right = false
+					elseif tab[1] == 'right' then
+						settings.text_box_settings.flags.right = true
+					end
+					f:SetAnchor(getAnchor());
+				end;
 			end;	
 			
 			local charName = AshitaCore:GetDataManager():GetParty():GetMemberName(0);
