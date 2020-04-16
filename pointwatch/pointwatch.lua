@@ -100,6 +100,17 @@ function RGBAtoHex(r, g, b, a)
 	return tonumber(addString, 16);
 end;
 
+function getAnchor()
+	local anchor = 0;
+	if settings.text_box_settings.flags.bottom then
+		anchor = anchor + 2;
+	end
+	if settings.text_box_settings.flags.right then
+		anchor = anchor + 1;
+	end;
+	return anchor;
+end;
+
 function setFontObject()	
 	local fontColor = RGBAtoHex(settings.text_box_settings.text.red, settings.text_box_settings.text.green, settings.text_box_settings.text.blue, settings.text_box_settings.text.alpha);
 	local bgColor = RGBAtoHex(settings.text_box_settings.bg.red, settings.text_box_settings.bg.green, settings.text_box_settings.bg.blue, settings.text_box_settings.bg.alpha);
@@ -111,6 +122,7 @@ function setFontObject()
 	f:SetPositionX(settings.text_box_settings.pos.x);
 	f:SetPositionY(settings.text_box_settings.pos.y);
 	f:SetVisibility(true);
+	f:SetAnchor(getAnchor());
 	f:GetBackground():SetColor(bgColor);
 	f:GetBackground():SetVisibility(true);
 end;
