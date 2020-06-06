@@ -1,5 +1,6 @@
 --- This requires the Ashita library; So include with another addon ---
 --- Not standalone! ---
+--- The pointer object mapping was pulled from many other authors offering their knowledge or open sourced information;
 
 autoFollow = {
 	baseAddress = 0,	-- When intitiated, set starting address 
